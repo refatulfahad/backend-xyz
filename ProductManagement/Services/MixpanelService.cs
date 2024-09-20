@@ -16,7 +16,7 @@ namespace ProductManagement.Services
         }
 
      
-        public async Task<bool> TrackEventAsync(string eventName, object product)
+        public async Task<bool> TrackEventAsync(string eventName, Product product)
         {
             string distinctId = Guid.NewGuid().ToString();
             string insertId = Guid.NewGuid().ToString();
@@ -27,13 +27,13 @@ namespace ProductManagement.Services
                 time = 12, 
                 distinct_id = distinctId, 
                 insert_id = insertId, 
-                price = "123"
+                price = product.Price,
             };
 
             string jsonProperties = JsonConvert.SerializeObject(properties);
             var content = new StringContent(jsonProperties, Encoding.UTF8, "application/json");
 
-            bool status = await _mixpanelClient.TrackAsync(eventName, null, content);
+            bool status = await _mixpanelClient.TrackAsync(eventName, distinctId, content);
 
             return status;
         }

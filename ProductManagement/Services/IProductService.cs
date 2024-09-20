@@ -6,6 +6,7 @@ namespace ProductManagement.Services
     public interface IProductService
     {
         Task<IEnumerable<Product>> GetAllProductsAsync();
+        Task<IEnumerable<Product>> GetAllpageProductAsync(int skip, int limit);
         Task<Product> GetProductByIdAsync(int id);
         Task<Product> CreateProductAsync(Product product);
         Task<Product> UpdateProductAsync(Product product);
@@ -25,6 +26,11 @@ namespace ProductManagement.Services
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
             return await _productRepository.GetAllProductsAsync();
+        }
+        public async Task<IEnumerable<Product>> GetAllpageProductAsync(int limit, int skip)
+        {
+            var products = await _productRepository.GetAllpageProductAsync(limit, skip);
+            return products;
         }
 
         public async Task<Product> GetProductByIdAsync(int id)
@@ -51,5 +57,7 @@ namespace ProductManagement.Services
         {
             return await _productRepository.SearchAsync(name, minPrice, maxPrice, pageNumber, pageSize);
         }
+
+     
     }
 }
