@@ -1,17 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProductManagement.Data;
 using ProductManagement.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ProductManagement.Repositories
 {
     public interface IProductRepository
     {
         Task<IEnumerable<Product>> GetAllProductsAsync();
+        Task<IEnumerable<Product>> GetAllpageProductAsync(int limit, int skip);
         Task<Product> GetProductByIdAsync(int id);
         Task<Product> CreateProductAsync(Product product);
         Task<Product> UpdateProductAsync(Product product);
         Task DeleteProductAsync(int id);
         Task<IEnumerable<Product>> SearchAsync(string? name, decimal? minPrice, decimal? maxPrice, int pageNumber, int pageSize);
+        
     }
 
     public class ProductRepository : IProductRepository
@@ -79,5 +82,18 @@ namespace ProductManagement.Repositories
 
             return await query.ToListAsync();
         }
+
+        public  async Task<IEnumerable<Product>> GetAllpageProductAsync(int limit, int skip)
+        {
+            var query = _context.Products.AsQueryable();
+            if (limit > 0)
+            {
+                query = query.Skip(skip).Take(limit);
+            }
+
+            return await query.ToListAsync();
+        }
+
+     
     }
 }

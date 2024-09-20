@@ -33,7 +33,23 @@ namespace ProductManagement.Controllers
             var productDtos = _mapper.Map<IEnumerable<ProductDto>>(products);
             return Ok(productDtos);
         }
-      
+
+        [HttpGet("pagination")]
+        public async Task<ActionResult<ProductDto>> GetPageProducts([FromQuery] int limit = 0,[FromQuery] int skip = 0)
+        {
+            try
+            {
+                var products = await _productService.GetAllpageProductAsync(limit, skip);
+                var productDtos = _mapper.Map<IEnumerable<ProductDto>>(products);
+                return Ok(productDtos);
+
+            }
+            catch (Exception ex) 
+            { 
+                return StatusCode(500, "Internal server error"); 
+            }
+           
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductDto>> GetProduct(int id)
