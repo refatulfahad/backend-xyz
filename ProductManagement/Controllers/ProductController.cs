@@ -1,17 +1,15 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Mixpanel;
 using ProductManagement.Domain;
 using ProductManagement.Models;
 using ProductManagement.Services;
-using System.Net.Http;
-using System.Text.Json;
-using System.Text;
 
 namespace ProductManagement.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
+    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
@@ -19,7 +17,7 @@ namespace ProductManagement.Controllers
         private readonly IMixpanelService _mixpanelService;
 
 
-        public ProductController(IProductService productService, IMapper mapper , IMixpanelService mixpanelService)
+        public ProductController(IProductService productService, IMapper mapper, IMixpanelService mixpanelService)
         {
             _productService = productService;
             _mapper = mapper;
@@ -35,7 +33,7 @@ namespace ProductManagement.Controllers
         }
 
         [HttpGet("pagination")]
-        public async Task<ActionResult<ProductDto>> GetPageProducts([FromQuery] int limit = 0,[FromQuery] int skip = 0)
+        public async Task<ActionResult<ProductDto>> GetPageProducts([FromQuery] int limit = 0, [FromQuery] int skip = 0)
         {
             try
             {
@@ -44,11 +42,11 @@ namespace ProductManagement.Controllers
                 return Ok(productDtos);
 
             }
-            catch (Exception ex) 
-            { 
-                return StatusCode(500, "Internal server error"); 
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
             }
-           
+
         }
 
         [HttpGet("{id}")]
