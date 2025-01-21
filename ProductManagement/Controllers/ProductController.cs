@@ -24,6 +24,7 @@ namespace ProductManagement.Controllers
             _mixpanelService = mixpanelService;
         }
 
+        [Authorize(Roles = "user,admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
         {
@@ -62,6 +63,7 @@ namespace ProductManagement.Controllers
             return Ok(productDto);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult<ProductDto>> CreateProduct([FromBody] UpsertProductDto productDto)
         {
