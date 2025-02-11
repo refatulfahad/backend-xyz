@@ -59,6 +59,12 @@ namespace ProductManagement.IntegrationTests
 
             // Act
             var response = await _client.PostAsJsonAsync("/product", productDto);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                throw new Exception($"API call failed with status {response.StatusCode}: {errorMessage}");
+            }
 
             // Assert
             Assert.True(response.IsSuccessStatusCode);
