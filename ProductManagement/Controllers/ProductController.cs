@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProductManagement.Domain;
+using ProductManagement.Mappings;
 using ProductManagement.Models;
 using ProductManagement.Services;
 
@@ -24,7 +25,7 @@ namespace ProductManagement.Controllers
             _mixpanelService = mixpanelService;
         }
 
-        [Authorize(Roles = "user,admin")]
+        [CustomAuthorization(Roles = "user,admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
         {
@@ -63,7 +64,7 @@ namespace ProductManagement.Controllers
             return Ok(productDto);
         }
 
-        [Authorize(Roles = "admin")]
+        [CustomAuthorization(Roles = "admin")]
         [HttpPost]
         public async Task<ActionResult<ProductDto>> CreateProduct([FromBody] UpsertProductDto productDto)
         {
