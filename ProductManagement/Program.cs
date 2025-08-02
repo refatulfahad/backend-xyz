@@ -1,15 +1,11 @@
-using Azure.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Newtonsoft.Json.Linq;
 using ProductManagement.Data;
-using ProductManagement.Extensions;
 using ProductManagement.Repositories;
 using ProductManagement.Services;
-using System.Diagnostics.Metrics;
-using System.Net;
 
 public class Program
 {
@@ -95,7 +91,9 @@ public class Program
                     ValidateLifetime = true
                 };
             });
-
+        builder.Services.AddAuthorization();
+        builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+        builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
         builder.Services.AddHttpClient();
         builder.Services.AddScoped<KeycloakAuthService>();
         var app = builder.Build();
@@ -110,7 +108,7 @@ public class Program
         app.UseCors(x => x.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
 
         app.UseHttpsRedirection();
-      
+
         app.MapControllers();
 
         app.Run();

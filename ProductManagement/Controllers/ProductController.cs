@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProductManagement.Domain;
+using ProductManagement.Enum;
 using ProductManagement.Mappings;
 using ProductManagement.Models;
 using ProductManagement.Services;
@@ -25,7 +26,15 @@ namespace ProductManagement.Controllers
             _mixpanelService = mixpanelService;
         }
 
-        [CustomAuthorization(Roles = "user,admin")]
+        // This is a Role-based authorization attribute.
+        // It allows access only to users who have the specified roles ("user" or "admin").
+        // It's simple and coarse-grained — based on assigned roles only.
+        //[CustomAuthorization(Roles = "user,admin")]
+
+        // This is a Permission-based authorization attribute.
+        // It provides fine-grained control by checking if the user has a specific permission ("productView").
+        // It's typically used in systems where roles are mapped to a list of permissions.
+        [HasPermission(PermissionsEnum.productView)]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
         {
@@ -64,7 +73,8 @@ namespace ProductManagement.Controllers
             return Ok(productDto);
         }
 
-        [CustomAuthorization(Roles = "admin")]
+        //[CustomAuthorization(Roles = "admin")]
+        [HasPermission(PermissionsEnum.productCreate)]
         [HttpPost]
         public async Task<ActionResult<ProductDto>> CreateProduct([FromBody] UpsertProductDto productDto)
         {
