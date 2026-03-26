@@ -21,12 +21,16 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
                     .Where(c => c.Type == ClaimTypes.Role || c.Type == "roles" || c.Type == "role")
                     .SelectMany(c => c.Value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         .ToList();
+        
+        var userRolesLower = userRoles
+                    .Select(r => r.ToLower())
+                    .ToList();
 
-        if (!userRoles.Any())
+        if (!userRolesLower.Any())
             return;
 
         var rolePermissions = await dbContext.PermissionRoles
-             .Where(rp => userRoles.Contains(rp.Role.Name)) 
+             .Where(rp => userRolesLower.Contains(rp.Role.Name.ToLower())) 
              .Select(rp => rp.Permission.Name)
              .Distinct()
              .ToListAsync();
