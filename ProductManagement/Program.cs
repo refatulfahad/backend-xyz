@@ -21,7 +21,11 @@ public class Program
 
         // Configure AutoMapper
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
+        
+        builder.Services.AddEnyimMemcached(options =>
+        {
+            options.AddServer("127.0.0.1", 11211);
+        });
         // Register repositories and services
         builder.Services.AddScoped<IProductRepository, ProductRepository>();
         builder.Services.AddScoped<IProductService, ProductService>();
@@ -106,7 +110,7 @@ public class Program
         }
         //enable Cors 
         app.UseCors(x => x.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
-
+        app.UseEnyimMemcached();
         app.UseHttpsRedirection();
 
         app.MapControllers();
