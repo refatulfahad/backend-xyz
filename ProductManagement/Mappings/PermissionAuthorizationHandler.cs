@@ -2,14 +2,15 @@
 using Microsoft.EntityFrameworkCore;
 using ProductManagement.Data;
 using System.Security.Claims;
-
+using Enyim.Caching;
 public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
 {
     private readonly IServiceScopeFactory _scopeFactory;
-
-    public PermissionAuthorizationHandler(IServiceScopeFactory scopeFactory)
+    private readonly IMemcachedClient memcachedClient;
+    public PermissionAuthorizationHandler(IServiceScopeFactory scopeFactory, IMemcachedClient memcachedClient)
     {
         _scopeFactory = scopeFactory;
+        this.memcachedClient = memcachedClient;
     }
 
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
@@ -29,11 +30,23 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
         if (!userRolesLower.Any())
             return;
 
-        var rolePermissions = await dbContext.PermissionRoles
-             .Where(rp => userRolesLower.Contains(rp.Role.Name.ToLower())) 
-             .Select(rp => rp.Permission.Name)
-             .Distinct()
-             .ToListAsync();
+        var cacheKey = $"role_permissions_{string.Join("_", userRolesLower)}";
+        var cachedPermissions = await memcachedClient.GetValueAsync<List<string>>(cacheKey);
+        List<string> rolePermissions;
+
+        if (cachedPermissions != null)
+        {
+            rolePermissions = cachedPermissions;
+        }
+        else
+        {
+            rolePermissions = await dbContext.PermissionRoles
+                 .Where(rp => userRolesLower.Contains(rp.Role.Name.ToLower())) 
+                 .Select(rp => rp.Permission.Name)
+                 .Distinct()
+                 .ToListAsync();
+            await memcachedClient.SetAsync(cacheKey, rolePermissions, TimeSpan.FromMinutes(10));
+        }
 
         if (requirement.Permissions.Any(permission => rolePermissions.Contains(permission)))
         {
