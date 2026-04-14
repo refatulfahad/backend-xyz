@@ -89,7 +89,7 @@ public class Program
                 o.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidIssuer = builder.Configuration["Authentication:ValidIssuer"],
-                    RoleClaimType = "roles",
+                    RoleClaimType = "role",
                     NameClaimType = "preferred_username",
                     ValidateIssuerSigningKey = true,
                     ValidateLifetime = true
