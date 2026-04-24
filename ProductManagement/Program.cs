@@ -22,9 +22,11 @@ public class Program
         // Configure AutoMapper
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         
+        var memcachedHost = builder.Configuration["Memcached:Host"] ?? "127.0.0.1";
+        var memcachedPort = int.Parse(builder.Configuration["Memcached:Port"] ?? "11211");
         builder.Services.AddEnyimMemcached(options =>
         {
-            options.AddServer("127.0.0.1", 11211);
+            options.AddServer(memcachedHost, memcachedPort);
         });
         // Register repositories and services
         builder.Services.AddScoped<IProductRepository, ProductRepository>();
