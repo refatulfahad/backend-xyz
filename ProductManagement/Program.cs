@@ -21,13 +21,8 @@ public class Program
 
         // Configure AutoMapper
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-        
-        var memcachedHost = builder.Configuration["Memcached:Host"] ?? "127.0.0.1";
-        var memcachedPort = int.Parse(builder.Configuration["Memcached:Port"] ?? "11211");
-        builder.Services.AddEnyimMemcached(options =>
-        {
-            options.AddServer(memcachedHost, memcachedPort);
-        });
+
+        builder.Services.AddSingleton<IRolePermissionCache, RolePermissionCache>();
         // Register repositories and services
         builder.Services.AddScoped<IProductRepository, ProductRepository>();
         builder.Services.AddScoped<IProductService, ProductService>();
@@ -112,7 +107,6 @@ public class Program
         // }
         //enable Cors 
         app.UseCors(x => x.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
-        app.UseEnyimMemcached();
         app.UseHttpsRedirection();
 
         app.MapControllers();
