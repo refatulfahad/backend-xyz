@@ -8,6 +8,6 @@ namespace ProductManagement.Models
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
 
-        public ICollection<PermissionRole> PermissionRoles { get; set; } = new List<PermissionRole>();
+        public ICollection<PermissionRole> PermissionRoles { get; set; } = [];
     }
 }
