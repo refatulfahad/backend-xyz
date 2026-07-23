@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -92,6 +93,14 @@ public class Program
                     ValidateLifetime = true
                 };
             });
+        
+        if (builder.Environment.IsProduction())
+        {
+            builder.Configuration.AddAzureKeyVault(
+            new Uri("https://project-xyz-key-vault.vault.azure.net/"),
+            new DefaultAzureCredential());
+        }
+       
         builder.Services.AddAuthorization();
         builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
         builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
