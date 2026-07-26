@@ -15,18 +15,18 @@ namespace ProductManagement.Services
             _mixpanelClient = new MixpanelClient("874f28d8800d06ca29cf542aa0b618ad");
         }
 
-     
+
         public async Task<bool> TrackEventAsync(string eventName, Product product)
         {
             string distinctId = Guid.NewGuid().ToString();
             string insertId = Guid.NewGuid().ToString();
-            
+
             var properties = new
             {
                 token = "874f28d8800d06ca29cf542aa0b618ad",
-                time = 12, 
-                distinct_id = distinctId, 
-                insert_id = insertId, 
+                time = 12,
+                distinct_id = distinctId,
+                insert_id = insertId,
                 price = product.Price,
             };
 

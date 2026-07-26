@@ -25,7 +25,7 @@ namespace ProductManagement.UnitTests
         {
             // Arrange
             var products = new List<Product> { product1, product2 };
-            
+
             _mockProductRepository.GetAllProductsAsync().Returns(products);
 
             // Act
