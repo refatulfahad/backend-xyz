@@ -21,7 +21,7 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
                     .Where(c => c.Type == ClaimTypes.Role || c.Type == "roles" || c.Type == "role")
                     .SelectMany(c => c.Value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         .ToList();
-        
+
         var userRolesLower = userRoles
                     .Select(r => r.ToLower())
                     .Distinct()

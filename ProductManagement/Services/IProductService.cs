@@ -58,6 +58,6 @@ namespace ProductManagement.Services
             return await _productRepository.SearchAsync(name, minPrice, maxPrice, pageNumber, pageSize);
         }
 
-     
+
     }
 }

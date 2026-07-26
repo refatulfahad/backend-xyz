@@ -14,7 +14,7 @@ namespace ProductManagement.Repositories
         Task<Product> UpdateProductAsync(Product product);
         Task DeleteProductAsync(int id);
         Task<IEnumerable<Product>> SearchAsync(string? name, decimal? minPrice, decimal? maxPrice, int pageNumber, int pageSize);
-        
+
     }
 
     public class ProductRepository : IProductRepository
@@ -83,7 +83,7 @@ namespace ProductManagement.Repositories
             return await query.ToListAsync();
         }
 
-        public  async Task<IEnumerable<Product>> GetAllpageProductAsync(int limit, int skip)
+        public async Task<IEnumerable<Product>> GetAllpageProductAsync(int limit, int skip)
         {
             var query = _context.Products.AsQueryable();
             if (limit > 0)
@@ -94,6 +94,6 @@ namespace ProductManagement.Repositories
             return await query.ToListAsync();
         }
 
-     
+
     }
 }
