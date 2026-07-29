@@ -16,6 +16,18 @@ public class Program
 
         // Add services to the container.
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("Frontend", policy =>
+            {
+                policy
+                    .WithOrigins(
+                        builder.Configuration["FrontendUrl"]!
+                    )
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
         builder.Services.AddControllers();
         builder.Services.AddDbContext<ProductContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -115,7 +127,7 @@ public class Program
         app.UseSwaggerUI();
         // }
         //enable Cors 
-        app.UseCors(x => x.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
+        app.UseCors("Frontend");
         app.UseHttpsRedirection();
 
         app.MapControllers();
