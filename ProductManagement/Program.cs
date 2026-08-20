@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using ProductManagement.Data;
 using ProductManagement.Repositories;
 using ProductManagement.Services;
+using ProductManagement.Services.Storage;
 
 public class Program
 {
@@ -28,7 +29,7 @@ public class Program
         builder.Services.AddScoped<IProductRepository, ProductRepository>();
         builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddScoped<IMixpanelService, MixpanelService>();
-
+        builder.Services.AddScoped<BlobStorageService>();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
