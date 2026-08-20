@@ -6,6 +6,7 @@ using ProductManagement.Enum;
 using ProductManagement.Mappings;
 using ProductManagement.Models;
 using ProductManagement.Services;
+using ProductManagement.Services.Storage;
 
 namespace ProductManagement.Controllers
 {
@@ -17,18 +18,23 @@ namespace ProductManagement.Controllers
         private readonly IProductService _productService;
         private readonly IMapper _mapper;
         private readonly IMixpanelService _mixpanelService;
+        private readonly BlobStorageService _blobStorageService;
 
 
-        public ProductController(IProductService productService, IMapper mapper, IMixpanelService mixpanelService)
+        public ProductController(IProductService productService,
+        IMapper mapper,
+        IMixpanelService mixpanelService,
+        BlobStorageService blobStorageService)
         {
             _productService = productService;
             _mapper = mapper;
             _mixpanelService = mixpanelService;
+            _blobStorageService = blobStorageService;
         }
 
         // This is a Role-based authorization attribute.
         // It allows access only to users who have the specified roles ("user" or "admin").
-        // It's simple and coarse-grained — based on assigned roles only.
+        // It's simple and coarse-grained ï¿½ based on assigned roles only.
         //[CustomAuthorization(Roles = "user,admin")]
 
         // This is a Permission-based authorization attribute.
@@ -76,14 +82,28 @@ namespace ProductManagement.Controllers
         //[CustomAuthorization(Roles = "admin")]
         [HasPermission(PermissionsEnum.productCreate)]
         [HttpPost]
-        public async Task<ActionResult<ProductDto>> CreateProduct([FromBody] UpsertProductDto productDto)
+        public async Task<ActionResult<ProductDto>> CreateProduct([FromForm] UpsertProductDto productDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var product = _mapper.Map<Product>(productDto);
+            string? imageUrl = null;
+
+            if (productDto.Image is not null)
+            {
+                imageUrl = await _blobStorageService.UploadAsync(productDto.Image);
+            }
+
+            var product = new Product
+            {
+                Name = productDto.Name,
+                Description = productDto.Description,
+                Price = productDto.Price,
+                Stock = productDto.Stock,
+                ImageUrl = imageUrl
+            };
             var createdProduct = await _productService.CreateProductAsync(product);
             var createdProductDto = _mapper.Map<ProductDto>(createdProduct);
 
