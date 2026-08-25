@@ -7,16 +7,22 @@ namespace ProductManagement.Services.Storage
     {
         private readonly BlobContainerClient _containerClient;
 
+        private readonly string _cdnBaseUrl;
+        private readonly string _containerName;
+
         public BlobStorageService(IConfiguration configuration)
         {
             var accountName = configuration["AzureStorage:AccountName"];
-            var containerName = configuration["AzureStorage:ContainerName"];
+            _containerName = configuration["AzureStorage:ContainerName"] ?? throw new InvalidOperationException(
+        "AzureStorage:ContainerName is not configured.");
+            _cdnBaseUrl = configuration["Cdn:BaseUrl"] ?? throw new InvalidOperationException(
+        "Cdn:BaseUrl is not configured.");
 
             var serviceClient = new BlobServiceClient(
                 new Uri($"https://{accountName}.blob.core.windows.net"),
                 new DefaultAzureCredential());
 
-            _containerClient = serviceClient.GetBlobContainerClient(containerName);
+            _containerClient = serviceClient.GetBlobContainerClient(_containerName);
         }
 
         public async Task<string> UploadAsync(IFormFile file)
@@ -31,7 +37,7 @@ namespace ProductManagement.Services.Storage
 
             await blobClient.UploadAsync(stream, overwrite: false);
 
-            return blobClient.Uri.ToString();
+            return $"{_cdnBaseUrl}/{_containerName}/{fileName}";
         }
     }
 }
