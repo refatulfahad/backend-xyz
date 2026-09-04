@@ -9,17 +9,18 @@ namespace ProductManagement.Services.Storage
 
         private readonly string _cdnBaseUrl;
         private readonly string _containerName;
+        private readonly string _accountName;
 
         public BlobStorageService(IConfiguration configuration)
         {
-            var accountName = configuration["AzureStorage:AccountName"];
+            _accountName = configuration["AzureStorage:AccountName"];
             _containerName = configuration["AzureStorage:ContainerName"] ?? throw new InvalidOperationException(
         "AzureStorage:ContainerName is not configured.");
             _cdnBaseUrl = configuration["Cdn:BaseUrl"] ?? throw new InvalidOperationException(
         "Cdn:BaseUrl is not configured.");
 
             var serviceClient = new BlobServiceClient(
-                new Uri($"https://{accountName}.blob.core.windows.net"),
+                new Uri($"https://{_accountName}.blob.core.windows.net"),
                 new DefaultAzureCredential());
 
             _containerClient = serviceClient.GetBlobContainerClient(_containerName);
@@ -37,7 +38,7 @@ namespace ProductManagement.Services.Storage
 
             await blobClient.UploadAsync(stream, overwrite: false);
 
-            return $"{_cdnBaseUrl}/{_containerName}/{fileName}";
+            return $"https://{_accountName}.blob.core.windows.net/{_containerName}/{fileName}";
         }
     }
 }
