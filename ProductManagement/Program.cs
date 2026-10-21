@@ -1,9 +1,10 @@
 using Azure.Identity;
+using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using ProductManagement.Data;
 using ProductManagement.Repositories;
 using ProductManagement.Services;
@@ -22,7 +23,10 @@ public class Program
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         // Configure AutoMapper
-        builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+        //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+        var config = TypeAdapterConfig.GlobalSettings;
+        config.Scan(typeof(ProductManagement.Mappings.MappingProfile).Assembly);
+        builder.Services.AddMapster();
 
         builder.Services.AddSingleton<IRolePermissionCache, RolePermissionCache>();
         // Register repositories and services
@@ -36,16 +40,16 @@ public class Program
 
         //Enable Swagger UI with Keycloak authentication
         //builder.Services.AddSwaggerGenWithAuth(builder.Configuration);
-        builder.Services.AddSwaggerGen(option =>
+        builder.Services.AddSwaggerGen(options =>
         {
-            option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
 
             //Tells Swagger that your API uses Bearer token(JWT) authentication.
             //Adds the "Authorize" button to Swagger UI.
             //Describes how the client should send the token:
             //    In the Authorization header.
             //    With this format: Bearer<your_token_here>
-            option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
                 Description = "Please enter a valid token",
@@ -57,19 +61,10 @@ public class Program
 
             //Applies the Bearer authentication scheme globally to all endpoints.
             //This means: Swagger will send the token you enter in "Authorize" to every request automatically.
-            option.AddSecurityRequirement(new OpenApiSecurityRequirement
+            options.AddSecurityRequirement(document =>
+            new OpenApiSecurityRequirement
             {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type=ReferenceType.SecurityScheme,
-                            Id="Bearer"
-                        }
-                    },
-                    new string[]{}
-                }
+                [new OpenApiSecuritySchemeReference("Bearer", document)] = []
             });
         });
 

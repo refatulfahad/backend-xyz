@@ -1,16 +1,19 @@
-﻿using AutoMapper;
+﻿using Mapster;
 using ProductManagement.Domain;
 using ProductManagement.Models;
 
 namespace ProductManagement.Mappings
 {
-    public class MappingProfile : Profile
+    public class MappingProfile : IRegister
     {
-        public MappingProfile()
+        public void Register(TypeAdapterConfig config)
         {
-            CreateMap<Product, ProductDto>().ReverseMap();
-            CreateMap<Product, UpsertProductDto>().ReverseMap()
-                .ForMember(o => o.Id, opt => opt.Ignore());
+            config.NewConfig<Product, ProductDto>();
+            config.NewConfig<ProductDto, Product>();
+
+            config.NewConfig<Product, UpsertProductDto>();
+            config.NewConfig<UpsertProductDto, Product>()
+                .Ignore(dest => dest.Id);
         }
     }
 }
