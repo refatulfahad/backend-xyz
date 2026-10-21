@@ -1,4 +1,4 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi;
 
 namespace ProductManagement.Extensions
 {
@@ -6,13 +6,14 @@ namespace ProductManagement.Extensions
     {
         internal static IServiceCollection AddSwaggerGenWithAuth(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSwaggerGen(o =>
+            services.AddSwaggerGen(options =>
             {
-                o.CustomSchemaIds(id => id.FullName!.Replace('+', '-'));
+                options.CustomSchemaIds(id => id.FullName!.Replace('+', '-'));
 
-                o.AddSecurityDefinition("Keycloak", new OpenApiSecurityScheme
+                options.AddSecurityDefinition("Keycloak", new OpenApiSecurityScheme
                 {
                     Type = SecuritySchemeType.OAuth2,
+                    Description = "Authenticate using Keycloak.",
                     Flows = new OpenApiOAuthFlows
                     {
                         Implicit = new OpenApiOAuthFlow
@@ -27,24 +28,11 @@ namespace ProductManagement.Extensions
                     }
                 });
 
-                var securityRequirement = new OpenApiSecurityRequirement
+                options.AddSecurityRequirement(document =>
+                new OpenApiSecurityRequirement
                 {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Id = "Keycloak",
-                                Type = ReferenceType.SecurityScheme
-                            },
-                            In = ParameterLocation.Header,
-                            Name = "Bearer",
-                            Scheme = "Bearer"
-                        },
-                        []
-                    }
-                };
-                o.AddSecurityRequirement(securityRequirement);
+                    [new OpenApiSecuritySchemeReference("Keycloak", document)] = []
+                });
 
             });
             return services;
