@@ -1,4 +1,5 @@
 using Azure.Identity;
+using Azure.Messaging.ServiceBus;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using ProductManagement.Data;
+using ProductManagement.Publisher;
 using ProductManagement.Repositories;
 using ProductManagement.Services;
 using ProductManagement.Services.Storage;
@@ -34,6 +36,16 @@ public class Program
         builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddScoped<IMixpanelService, MixpanelService>();
         builder.Services.AddScoped<BlobStorageService>();
+        builder.Services.AddSingleton<ProductNotificationPublisher>();
+        builder.Services.AddSingleton(_ =>
+        {
+            var connectionString =
+                builder.Configuration["ServiceBus:ConnectionString"]
+                ?? throw new InvalidOperationException(
+                    "Service Bus connection string is not configured.");
+
+            return new ServiceBusClient(connectionString);
+        });
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
