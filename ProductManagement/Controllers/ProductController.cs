@@ -5,6 +5,7 @@ using ProductManagement.Domain;
 using ProductManagement.Enum;
 using ProductManagement.Mappings;
 using ProductManagement.Models;
+using ProductManagement.Publisher;
 using ProductManagement.Services;
 using ProductManagement.Services.Storage;
 
@@ -19,17 +20,20 @@ namespace ProductManagement.Controllers
         private readonly IMapper _mapper;
         private readonly IMixpanelService _mixpanelService;
         private readonly BlobStorageService _blobStorageService;
+        private readonly ProductNotificationPublisher _notificationPublisher;
 
 
         public ProductController(IProductService productService,
         IMapper mapper,
         IMixpanelService mixpanelService,
-        BlobStorageService blobStorageService)
+        BlobStorageService blobStorageService,
+        ProductNotificationPublisher notificationPublisher)
         {
             _productService = productService;
             _mapper = mapper;
             _mixpanelService = mixpanelService;
             _blobStorageService = blobStorageService;
+            _notificationPublisher = notificationPublisher;
         }
 
         // This is a Role-based authorization attribute.
@@ -105,6 +109,11 @@ namespace ProductManagement.Controllers
                 ImageUrl = imageUrl
             };
             var createdProduct = await _productService.CreateProductAsync(product);
+            await _notificationPublisher.PublishProductNotificationAsync(
+                itemId: createdProduct.Id.ToString(),
+                eventType: "ProductCreated",
+                recipientEmail: User.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "recipient@example.com",
+                cancellationToken: CancellationToken.None);
             var createdProductDto = _mapper.Map<ProductDto>(createdProduct);
 
             return CreatedAtAction(nameof(GetProduct), new { id = createdProductDto.Id }, createdProductDto);
@@ -119,6 +128,11 @@ namespace ProductManagement.Controllers
                 return NotFound();
             }
             var updatedProduct = await _productService.UpdateProductAsync(_mapper.Map(productDto, product));
+            await _notificationPublisher.PublishProductNotificationAsync(
+                itemId: updatedProduct.Id.ToString(),
+                eventType: "ProductUpdated",
+                recipientEmail: User.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "recipient@example.com",
+                cancellationToken: CancellationToken.None);
             var updatedProductDto = _mapper.Map<ProductDto>(updatedProduct);
 
             return Ok(updatedProductDto);
@@ -135,6 +149,11 @@ namespace ProductManagement.Controllers
             }
 
             await _productService.DeleteProductAsync(id);
+            await _notificationPublisher.PublishProductNotificationAsync(
+                itemId: id.ToString(),
+                eventType: "ProductDeleted",
+                recipientEmail: User.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "recipient@example.com",
+                cancellationToken: CancellationToken.None);
             return NoContent();
         }
 
