@@ -6,7 +6,8 @@ namespace ProductManagement.Publisher;
 
 public sealed class ProductNotificationPublisher(
     ServiceBusClient client,
-    IConfiguration configuration)
+    IConfiguration configuration,
+    ILogger<ProductNotificationPublisher> logger)
 {
     private readonly string _queueName =
         configuration["ServiceBus:QueueName"]
@@ -26,7 +27,7 @@ public sealed class ProductNotificationPublisher(
             RecipientEmail: recipientEmail);
 
         var body = JsonSerializer.Serialize(notification);
-
+        logger.LogInformation("Publishing product notification: {EventType} for ItemId: {ItemId}", eventType, itemId);
         var message = new ServiceBusMessage(body)
         {
             MessageId = notification.EventId,
