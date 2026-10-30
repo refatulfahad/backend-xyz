@@ -21,19 +21,22 @@ namespace ProductManagement.Controllers
         private readonly IMixpanelService _mixpanelService;
         private readonly BlobStorageService _blobStorageService;
         private readonly ProductNotificationPublisher _notificationPublisher;
+        private readonly ILogger<ProductController> _logger;
 
 
         public ProductController(IProductService productService,
         IMapper mapper,
         IMixpanelService mixpanelService,
         BlobStorageService blobStorageService,
-        ProductNotificationPublisher notificationPublisher)
+        ProductNotificationPublisher notificationPublisher,
+        ILogger<ProductController> logger)
         {
             _productService = productService;
             _mapper = mapper;
             _mixpanelService = mixpanelService;
             _blobStorageService = blobStorageService;
             _notificationPublisher = notificationPublisher;
+            _logger = logger;
         }
 
         // This is a Role-based authorization attribute.
@@ -112,8 +115,9 @@ namespace ProductManagement.Controllers
             await _notificationPublisher.PublishProductNotificationAsync(
                 itemId: createdProduct.Id.ToString(),
                 eventType: "ProductCreated",
-                recipientEmail: User.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "recipient@example.com",
+                recipientEmail: "refat123@gmail.com",
                 cancellationToken: CancellationToken.None);
+            _logger.LogInformation("Product created with ID: {ProductId} by {UserEmail}", createdProduct.Id, User.Claims.FirstOrDefault(c => c.Type == "email")?.Value);
             var createdProductDto = _mapper.Map<ProductDto>(createdProduct);
 
             return CreatedAtAction(nameof(GetProduct), new { id = createdProductDto.Id }, createdProductDto);
