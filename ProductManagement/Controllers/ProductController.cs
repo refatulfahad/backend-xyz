@@ -115,7 +115,7 @@ namespace ProductManagement.Controllers
             await _notificationPublisher.PublishProductNotificationAsync(
                 itemId: createdProduct.Id.ToString(),
                 eventType: "ProductCreated",
-                recipientEmail: "refat123@gmail.com",
+                recipientEmail: "refat123@yopmail.com",
                 cancellationToken: CancellationToken.None);
             _logger.LogInformation("Product created with ID: {ProductId} by {UserEmail}", createdProduct.Id, User.Claims.FirstOrDefault(c => c.Type == "email")?.Value);
             var createdProductDto = _mapper.Map<ProductDto>(createdProduct);

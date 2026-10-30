@@ -19,7 +19,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
-
+        builder.Logging.AddAzureWebAppDiagnostics();
         builder.Services.AddControllers();
         builder.Services.AddDbContext<ProductContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

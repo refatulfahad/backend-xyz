@@ -27,6 +27,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.AzureAppServices" Version="10.0.14" />
     <PackageReference Include="mixpanel-csharp" Version="6.0.0" />
     <PackageReference Include="Moq" Version="4.21.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.3.1" />
