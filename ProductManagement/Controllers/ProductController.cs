@@ -115,7 +115,7 @@ namespace ProductManagement.Controllers
             await _notificationPublisher.PublishProductNotificationAsync(
                 itemId: createdProduct.Id.ToString(),
                 eventType: "ProductCreated",
-                recipientEmail: "refat123@yopmail.com",
+                recipientEmail: User.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "refat123@yopmail.com",
                 cancellationToken: CancellationToken.None);
             _logger.LogInformation("Product created with ID: {ProductId} by {UserEmail}", createdProduct.Id, User.Claims.FirstOrDefault(c => c.Type == "email")?.Value);
             var createdProductDto = _mapper.Map<ProductDto>(createdProduct);
@@ -135,7 +135,7 @@ namespace ProductManagement.Controllers
             await _notificationPublisher.PublishProductNotificationAsync(
                 itemId: updatedProduct.Id.ToString(),
                 eventType: "ProductUpdated",
-                recipientEmail: User.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "recipient@example.com",
+                recipientEmail: User.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "refat123@yopmail.com",
                 cancellationToken: CancellationToken.None);
             var updatedProductDto = _mapper.Map<ProductDto>(updatedProduct);
 
@@ -156,7 +156,7 @@ namespace ProductManagement.Controllers
             await _notificationPublisher.PublishProductNotificationAsync(
                 itemId: id.ToString(),
                 eventType: "ProductDeleted",
-                recipientEmail: User.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "recipient@example.com",
+                recipientEmail: User.Claims.FirstOrDefault(c => c.Type == "email")?.Value ?? "refat123@yopmail.com",
                 cancellationToken: CancellationToken.None);
             return NoContent();
         }
