@@ -5,7 +5,6 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
-    <DocumentationFile>C:\Umme Rukaya Suny\Testing\ProductManagement\bin\Debug\net8.0\ProductManagement.xml</DocumentationFile>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <UserSecretsId>d32552b6-ec9a-47a4-9784-290cea45bd85</UserSecretsId>
   </PropertyGroup>
