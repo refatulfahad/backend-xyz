@@ -1,5 +1,4 @@
-﻿using AutoMapper.Configuration.Annotations;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NSubstitute;
 using ProductManagement.Models;
 using ProductManagement.Repositories;
