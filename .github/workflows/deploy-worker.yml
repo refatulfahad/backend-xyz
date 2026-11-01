@@ -94,6 +94,7 @@ jobs:
             -Method PUT `
             -Headers @{
               Authorization = "Basic $encoded"
+              "Content-Disposition" = 'attachment; filename="NotificationWorker.zip"'
             } `
             -ContentType "application/zip" `
             -InFile "NotificationWorker.zip"
