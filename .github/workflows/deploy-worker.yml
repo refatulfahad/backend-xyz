@@ -1,0 +1,101 @@
+
+name: Deploy Notification Worker WebJob
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/ProductManagement.NotificationWorker/**'
+      - '.github/workflows/deploy-worker.yml'
+
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # Publish as a self-contained Windows application.
+      - name: Publish Worker
+        run: |
+          dotnet publish `
+            src/ProductManagement.NotificationWorker/ProductManagement.NotificationWorker.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -o publish
+
+      # WebJobs needs a startup command.
+      - name: Create WebJob startup file
+        shell: pwsh
+        run: |
+          Set-Content publish/run.cmd `
+            '@echo off
+          ProductManagement.NotificationWorker.exe' `
+            -Encoding ASCII
+
+      # Run only one instance of this WebJob.
+      - name: Create WebJob settings
+        shell: pwsh
+        run: |
+          Set-Content publish/settings.job `
+            '{ "is_singleton": true }' `
+            -Encoding ASCII
+
+      # Package the published files, not the publish folder itself.
+      - name: Create WebJob ZIP
+        shell: pwsh
+        run: |
+          Compress-Archive `
+            -Path publish/* `
+            -DestinationPath NotificationWorker.zip `
+            -Force
+
+      # Upload to the Continuous WebJob endpoint.
+      - name: Deploy WebJob to App Service
+        shell: pwsh
+        env:
+          PUBLISH_PROFILE: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        run: |
+          [xml]$profile = $env:PUBLISH_PROFILE
+
+          $msdeploy = $profile.publishData.publishProfile |
+            Where-Object { $_.publishMethod -eq "MSDeploy" } |
+            Select-Object -First 1
+
+          if (-not $msdeploy) {
+            throw "MSDeploy publishing profile not found."
+          }
+
+          $username = $msdeploy.userName
+          $password = $msdeploy.userPWD
+
+          $credentials = "${username}:${password}"
+          $encoded = [Convert]::ToBase64String(
+            [Text.Encoding]::ASCII.GetBytes($credentials)
+          )
+
+          $url = "https://backend-xyz-bqexayewepepa3cz.scm.southeastasia-01.azurewebsites.net/api/continuouswebjobs/NotificationWorker"
+
+          Invoke-RestMethod `
+            -Uri $url `
+            -Method PUT `
+            -Headers @{
+              Authorization = "Basic $encoded"
+            } `
+            -ContentType "application/zip" `
+            -InFile "NotificationWorker.zip"
+
+          Write-Host "Notification Worker WebJob deployed successfully."
