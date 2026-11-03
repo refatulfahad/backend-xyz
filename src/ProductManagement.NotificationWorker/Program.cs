@@ -17,6 +17,13 @@ builder.Services
         "Brevo configuration is incomplete.")
     .ValidateOnStart();
 
+    if (builder.Environment.IsProduction())
+    {
+        builder.Configuration.AddAzureKeyVault(
+        new Uri("https://project-xyz-key-vault.vault.azure.net/"),
+        new DefaultAzureCredential());
+    }
+    
 builder.Services.AddSingleton(serviceProvider =>
 {
     var configuration = serviceProvider
