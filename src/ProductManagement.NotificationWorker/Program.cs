@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Learning.NotificationWorker;
 using Learning.NotificationWorker.Channels;
@@ -6,12 +7,12 @@ using Learning.NotificationWorker.Services;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-// if (builder.Environment.IsProduction())
-// {
+if (builder.Environment.IsProduction())
+{
     builder.Configuration.AddAzureKeyVault(
     new Uri("https://project-xyz-key-vault.vault.azure.net/"),
     new DefaultAzureCredential());
-// }
+}
 
 builder.Services
     .AddOptions<BrevoOptions>()
