@@ -45,9 +45,9 @@ public class Program
                     )
                 );
             }
-        }); 
+        });
+
         // Configure AutoMapper
-        //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         var config = TypeAdapterConfig.GlobalSettings;
         config.Scan(typeof(ProductManagement.Mappings.MappingProfile).Assembly);
         builder.Services.AddMapster();
@@ -130,8 +130,7 @@ public class Program
             new Uri("https://project-xyz-key-vault.vault.azure.net/"),
             new DefaultAzureCredential());
         }
-        
-        
+
         builder.Services.AddAuthorization();
         builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
         builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
