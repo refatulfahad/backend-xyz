@@ -21,11 +21,33 @@ public class Program
         // Add services to the container.
         builder.Logging.AddAzureWebAppDiagnostics();
         builder.Services.AddControllers();
+        var databaseProvider = builder.Configuration["DatabaseProvider"];
+        // builder.Services.AddDbContext<ProductContext>(options =>
+        //     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
         builder.Services.AddDbContext<ProductContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+        {
+            if (databaseProvider == "PostgreSQL")
+            {
+                options.UseNpgsql(
+                    builder.Configuration.GetConnectionString("PostgreSql"),
+                    x => x.MigrationsAssembly(
+                        "ProductManagement.PostgreSql.Migrations"
+                    )
+                );
+            }
+            else
+            {
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection"),
+                    x => x.MigrationsAssembly(
+                        "ProductManagement.Api"
+                    )
+                );
+            }
+        });
 
         // Configure AutoMapper
-        //builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         var config = TypeAdapterConfig.GlobalSettings;
         config.Scan(typeof(ProductManagement.Mappings.MappingProfile).Assembly);
         builder.Services.AddMapster();
@@ -115,7 +137,10 @@ public class Program
         builder.Services.AddHttpClient();
         builder.Services.AddScoped<KeycloakAuthService>();
         var app = builder.Build();
-
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
+        }
         // Configure the HTTP request pipeline.
         // if (app.Environment.IsDevelopment())
         // {
