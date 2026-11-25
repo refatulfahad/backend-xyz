@@ -38,7 +38,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ProductManagement.Infrastructure\ProductManagement.Infrastructure.csproj" />
-    <ProjectReference Include="..\ProductManagement.MsSql.Migrations\ProductManagement.MSSql.Migrations.csproj" />
+    <ProjectReference Include="..\ProductManagement.MSSql.Migrations\ProductManagement.MSSql.Migrations.csproj" />
     <ProjectReference Include="..\ProductManagement.PostgreSql.Migrations\ProductManagement.PostgreSql.Migrations.csproj" />
   </ItemGroup>
 
